@@ -1,36 +1,34 @@
 import 'dart:html';
 
 import 'package:writestat/chart.dart';
+import 'package:writestat/goal.dart';
 
 class WriteStat {
-  int      goal;
-  DateTime goalStart;
-  DateTime goalEnd;
-  Duration goalDuration;
-  GoalChart chart;
+  Goal      goal;
+  Chart chart;
 
   WriteStat() {
     querySelector('#createGoal').onClick.listen(createGoal);
   }
 
   createGoal(Event e) {
-    var inputGoal      = querySelector('#inputGoal');
-    var inputStartDate = querySelector('#inputStartDate');
-    var inputEndDate   = querySelector('#inputEndDate');
-    if (inputGoal.value.isEmpty) {
-      inputGoal.value = '50000';
+    InputElement inputGoalStart  = querySelector('#inputGoalStart');
+    InputElement inputGoalEnd    = querySelector('#inputGoalEnd');
+    InputElement inputGoalAmount = querySelector('#inputGoalAmount');
+    if (inputGoalAmount.value.isEmpty) {
+      inputGoalAmount.value = '50000';
     }
-    goal      = int.parse(inputGoal.value);
-    goalStart = DateTime.parse(inputStartDate.value);
-    goalEnd   = DateTime.parse(inputEndDate.value);
-    // TODO Add 1 day to duration?
-    goalDuration = goalEnd.difference(goalStart);
+    DateTime start = DateTime.parse(inputGoalStart.value);
+    DateTime end   = DateTime.parse(inputGoalEnd.value);
+    int amount     = int.parse(inputGoalAmount.value);
 
-    for (var i=1; i<=goalDuration.inDays; i++) {
+    goal = new Goal(start, end, amount);
+
+    for (var i=1; i<=goal.duration.inDays; i++) {
       createGoalTrackingInputs(i);
     }
 
-    chart = new GoalChart(goalDuration, goal);
+    chart = new Chart(goal.duration, goal.amount);
 
     e.preventDefault();
   }

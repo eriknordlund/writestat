@@ -3,14 +3,14 @@ library chart;
 import 'dart:collection';
 import 'dart:js';
 
-class GoalChart {
+class Chart {
   Duration duration;
   int goal;
   LinkedHashMap options;
   List idealProgress;
   List progress;
 
-  GoalChart(this.duration, this.goal) {
+  Chart(this.duration, this.goal) {
     idealProgress = [];
     var goalIncrement = goal / duration.inDays;
     for (var day=0; day<=duration.inDays; day++) {
