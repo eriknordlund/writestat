@@ -4,7 +4,7 @@ import 'package:writestat/chart.dart';
 import 'package:writestat/goal.dart';
 
 class WriteStat {
-  Goal      goal;
+  Goal goal;
   Chart chart;
 
   WriteStat() {
@@ -12,51 +12,50 @@ class WriteStat {
   }
 
   createGoal(Event e) {
-    InputElement inputGoalStart  = querySelector('#inputGoalStart');
-    InputElement inputGoalEnd    = querySelector('#inputGoalEnd');
+    InputElement inputGoalStart = querySelector('#inputGoalStart');
+    InputElement inputGoalEnd = querySelector('#inputGoalEnd');
     InputElement inputGoalAmount = querySelector('#inputGoalAmount');
     if (inputGoalAmount.value.isEmpty) {
       inputGoalAmount.value = '50000';
     }
     DateTime start = DateTime.parse(inputGoalStart.value);
-    DateTime end   = DateTime.parse(inputGoalEnd.value);
-    int amount     = int.parse(inputGoalAmount.value);
+    DateTime end = DateTime.parse(inputGoalEnd.value);
+    int amount = int.parse(inputGoalAmount.value);
 
     goal = new Goal(start, end, amount);
-
-    for (var i=1; i<=goal.duration.inDays; i++) {
-      createGoalTrackingInputs(i);
-    }
+    createGoalTrackingInputs(goal.duration.inDays);
 
     chart = new Chart(goal.duration, goal.amount);
 
     e.preventDefault();
   }
 
-  createGoalTrackingInputs(day) {
-    var goalTrackingForm = querySelector('#goalTrackingForm');
+  createGoalTrackingInputs(amount) {
+    for (var i = 1; i <= amount; i++) {
 
-    var formGroup = new DivElement();
-    formGroup.classes.add('form-group form-group-sm');
-    goalTrackingForm.children.add(formGroup);
+      var goalTrackingForm = querySelector('#goalTrackingForm');
 
-    var label = new LabelElement();
-    //TODO Create 'for' attribute
-    label.text = 'Dag $day';
-    label.attributes['for'] = 'goalDay$day';
-    label.classes.add('col-sm-4 control-label');
-    formGroup.children.add(label);
+      var formGroup = new DivElement();
+      formGroup.classes.add('form-group form-group-sm');
+      goalTrackingForm.children.add(formGroup);
 
-    var input = new InputElement(type: 'input');
-    //TODO Create 'for' attribute
-    input.attributes = { 'id': 'goalDay$day', 'type': 'number', 'class': 'form-control' };
+      var label = new LabelElement();
+      label.text = 'Dag $i';
+      label.classes.add('col-sm-4 control-label');
+      label.attributes['for'] = 'goalDay$i';
+      formGroup.children.add(label);
 
-    var wrapDiv = new DivElement();
-    wrapDiv.classes.add('col-sm-8');
-    wrapDiv.children.add(input);
-    formGroup.children.add(wrapDiv);
+      var input = new InputElement(type: 'input');
+      input.classes.add('form-control');
+      input.id = 'goalDay$i';
 
-    input.onBlur.listen(recalculateGoal);
+      var wrapDiv = new DivElement();
+      wrapDiv.classes.add('col-sm-8');
+      wrapDiv.children.add(input);
+      formGroup.children.add(wrapDiv);
+
+      input.onBlur.listen(recalculateGoal);
+    }
   }
 
   recalculateGoal(Event e) {
