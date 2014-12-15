@@ -45,12 +45,13 @@ class WriteStat {
     var label = new LabelElement();
     //TODO Create 'for' attribute
     label.text = 'Dag $day';
-    label.classes.add('col-sm-4');
+    label.attributes['for'] = 'goalDay$day';
+    label.classes.add('col-sm-4 control-label');
     formGroup.children.add(label);
 
     var input = new InputElement(type: 'input');
     //TODO Create 'for' attribute
-    input.attributes = { 'type': 'number', 'class': 'form-control' };
+    input.attributes = { 'id': 'goalDay$day', 'type': 'number', 'class': 'form-control' };
 
     var wrapDiv = new DivElement();
     wrapDiv.classes.add('col-sm-8');
