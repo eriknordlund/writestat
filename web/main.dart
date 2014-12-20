@@ -1,5 +1,6 @@
 import 'dart:html';
 
+import 'package:intl/intl.dart';
 import 'package:writestat/chart.dart';
 import 'package:writestat/goal.dart';
 
@@ -8,7 +9,16 @@ class WriteStat {
   Chart chart;
 
   WriteStat() {
-    querySelector('#createGoal').onClick.listen(createGoal);
+    loadGoal();
+
+    // TODO Refactor together with createGoal. Handle DOM stuff in Goal?
+    createGoalTrackingInputs();
+    chart = new Chart(goal.duration, goal.amount);
+    chart.progress = goal.progress;
+    // TODO Render should be done implicit
+    chart.render();
+
+    querySelector('#submitGoal').onClick.listen(createGoal);
   }
 
   createGoal(Event e) {
@@ -18,21 +28,18 @@ class WriteStat {
     if (inputGoalAmount.value.isEmpty) {
       inputGoalAmount.value = '50000';
     }
-    DateTime start = DateTime.parse(inputGoalStart.value);
-    DateTime end = DateTime.parse(inputGoalEnd.value);
-    int amount = int.parse(inputGoalAmount.value);
 
-    goal = new Goal(start, end, amount);
-    createGoalTrackingInputs(goal.duration.inDays);
+    goal = new Goal(inputGoalStart.value, inputGoalEnd.value, inputGoalAmount.value);
+    goal.save();
 
+    createGoalTrackingInputs();
     chart = new Chart(goal.duration, goal.amount);
 
     e.preventDefault();
   }
 
-  createGoalTrackingInputs(amount) {
-    for (var i = 1; i <= amount; i++) {
-
+  createGoalTrackingInputs() {
+    for (var i = 1; i <= goal.duration.inDays; i++) {
       var goalTrackingForm = querySelector('#goalTrackingForm');
 
       var formGroup = new DivElement();
@@ -48,14 +55,30 @@ class WriteStat {
       var input = new InputElement(type: 'input');
       input.classes.add('form-control');
       input.id = 'goalDay$i';
+      input.value = goal.progress.elementAt(i-1).toString();
 
       var wrapDiv = new DivElement();
       wrapDiv.classes.add('col-sm-8');
       wrapDiv.children.add(input);
       formGroup.children.add(wrapDiv);
 
-      input.onBlur.listen(recalculateGoal);
+      input.onBlur.listen((event) {
+        goal.progress[i-1] = int.parse(input.value);
+        recalculateGoal(event);
+        goal.save();
+      });
     }
+  }
+
+  loadGoal() {
+    var formatter = new DateFormat('yyyy-MM-dd');
+    goal = Goal.load();
+    InputElement inputGoalStart = querySelector('#inputGoalStart');
+    InputElement inputGoalEnd = querySelector('#inputGoalEnd');
+    InputElement inputGoalAmount = querySelector('#inputGoalAmount');
+    inputGoalStart.value  = formatter.format(goal.start);
+    inputGoalEnd.value    = formatter.format(goal.end);
+    inputGoalAmount.value = goal.amount.toString();
   }
 
   recalculateGoal(Event e) {

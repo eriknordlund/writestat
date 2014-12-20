@@ -7,8 +7,8 @@ class Chart {
   Duration duration;
   int goal;
   LinkedHashMap options;
-  List idealProgress;
-  List progress;
+  List<int> idealProgress;
+  List<int> progress;
 
   Chart(this.duration, this.goal) {
     idealProgress = [];
