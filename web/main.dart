@@ -39,9 +39,10 @@ class WriteStat {
   }
 
   createGoalTrackingInputs() {
-    for (var i = 1; i <= goal.duration.inDays; i++) {
-      var goalTrackingForm = querySelector('#goalTrackingForm');
+    var goalTrackingForm = querySelector('#goalTrackingForm');
+    goalTrackingForm.children.clear();
 
+    for (var i = 1; i <= goal.duration.inDays; i++) {
       var formGroup = new DivElement();
       formGroup.classes.add('form-group form-group-sm');
       goalTrackingForm.children.add(formGroup);
