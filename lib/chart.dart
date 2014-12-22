@@ -1,24 +1,12 @@
 library chart;
 
-import 'dart:collection';
 import 'dart:js';
 
 class Chart {
   Duration duration;
   int goal;
-  LinkedHashMap options;
   List<int> idealProgress;
   List<int> progress;
-
-  Chart(this.duration, this.goal) {
-    idealProgress = [];
-    var goalIncrement = goal / duration.inDays;
-    for (var day=0; day<=duration.inDays; day++) {
-      idealProgress.add(day*goalIncrement);
-    }
-
-    render();
-  }
 
   render() {
     var options = new JsObject.jsify({
@@ -27,19 +15,39 @@ class Chart {
         'type': 'line'
       },
       'series': [{
-        'name': 'Future',
+        'name': 'Idealisk progress',
         'dashStyle': 'dot',
         'color': '#4572A7',
         'data': idealProgress
       }, {
-        'name': 'Lotta',
-        //'type': 'area',
+        'name': 'Faktisk progress',
         'type': 'column',
-        'color': '#4572A7',
+        'color': '#9972A7',
         'data': progress
       }]
     });
 
     new JsObject(context['Highcharts']['Chart'], [options]);
+  }
+
+  setActualProgress(List<int> progress) {
+    this.progress = [];
+    this.progress.addAll(progress);
+    this.progress.removeWhere((i) => i == 0);
+    render();
+  }
+
+  setIdealProgress(int goal, Duration duration) {
+    this.goal = goal;
+    this.duration = duration;
+    this.idealProgress = [];
+
+    if (goal != null && duration != null) {
+      var goalIncrement = goal / duration.inDays;
+      for (var day=0; day<=duration.inDays; day++) {
+        idealProgress.add(day*goalIncrement);
+      }
+    }
+    render();
   }
 }

@@ -1,60 +1,93 @@
 library goal;
 
-import 'dart:collection';
-import 'dart:html';
+import 'package:writestat/storage.dart';
 
 class Goal {
-  DateTime start;
-  DateTime end;
-  int      amount;
-  Duration duration;
+  DateTime  start;
+  DateTime  end;
+  int       amount;
+  Duration  duration;
   List<int> progress;
 
-  Goal(String start, String end, String amount) {
-    this.start  = DateTime.parse(start);
-    this.end    = DateTime.parse(end);
-    this.amount = int.parse(amount);
+  Goal.loadOrCreate() {
+    var start, end, amount;
 
-    // subtract() includes the chosen start day in the goal
-    duration = this.end.difference(this.start.subtract(new Duration(days: 1)));
-    progress = new List.generate(duration.inDays, (int index) => 0);
-  }
-
-  void save() {
-    window.localStorage['start']    = start.toIso8601String();
-    window.localStorage['end']      = end.toIso8601String();
-    window.localStorage['amount']   = amount.toString();
-    window.localStorage['progress'] = progress.join(',');
-  }
-
-  static Goal load() {
-    var start = new DateTime.now().toString();
-    var end = new DateTime.now().add(new Duration(days: 7)).toString();
-    var amount = '50000';
-    var progress = new List.generate(new Duration(days: 7).inDays, (int index) => 0);
-    Goal goal;
-
-    if (window.localStorage.containsKey('start') && window.localStorage['start'].isNotEmpty) {
-      start = window.localStorage['start'];
+    if (Storage.hasKey('start')) {
+      start = Storage.get('start');
+    } else {
+      start = new DateTime.now().toString();
     }
 
-    if (window.localStorage.containsKey('end') && window.localStorage['end'].isNotEmpty) {
-      end = window.localStorage['end'];
+    if (Storage.hasKey('end')) {
+      end = Storage.get('end');
+    } else {
+      end = new DateTime.now().add(new Duration(days: 7)).toString();
     }
 
-    if (window.localStorage.containsKey('amount') && window.localStorage['amount'].isNotEmpty) {
-      amount = window.localStorage['amount'];
+    if (Storage.hasKey('amount')) {
+      amount = Storage.get('amount');
+    } else {
+      amount = 50000;
     }
 
-    if (window.localStorage.containsKey('progress') && window.localStorage['progress'].isNotEmpty) {
-      progress.clear();
-      for (var value in window.localStorage['progress'].split(',')) {
+    update(start, end, amount);
+
+    // TODO Can we do this without looping?
+    if (Storage.hasKey('progress')) {
+      progress = new List<int>();
+      for (var value in Storage.get('progress').split(',')) {
         progress.add(int.parse(value));
       }
+    } else {
+      progress = new List.filled(8, 0);
+    }
+  }
+
+  save() {
+    if (start != null) {
+      Storage.set('start', start.toIso8601String());
+    }
+    if (end != null) {
+      Storage.set('end', end.toIso8601String());
+    }
+    if (amount != null) {
+      Storage.set('amount', amount.toString());
+    }
+    if (progress != null) {
+      Storage.set('progress', progress.join(','));
+    }
+  }
+
+  update(String start, String end, String amount) {
+    this.start = DateTime.parse(start);
+    this.end = DateTime.parse(end);
+    this.amount = int.parse(amount);
+
+    _updateDuration();
+    _updateProgress();
+  }
+
+  void _updateDuration() {
+    duration = null;
+    if (start != null && end != null) {
+      // subtract() includes the chosen start day in the goal
+      duration = end.difference(start.subtract(new Duration(days: 1)));
+    }
+  }
+
+  void _updateProgress() {
+    if (duration == null) {
+      progress = null;
+      return;
     }
 
-    goal = new Goal(start, end, amount);
-    goal.progress = progress;
-    return goal;
+    var oldProgress = progress;
+    progress = new List<int>.generate(duration.inDays, (x) => 0);
+
+    if (oldProgress != null) {
+      for (var i=0; i<progress.length && i<oldProgress.length; i++) {
+        progress[i] = oldProgress[i];
+      }
+    }
   }
 }
