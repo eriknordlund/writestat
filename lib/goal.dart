@@ -27,7 +27,7 @@ class Goal {
     if (Storage.hasKey('amount')) {
       amount = Storage.get('amount');
     } else {
-      amount = 50000;
+      amount = '50000';
     }
 
     update(start, end, amount);
