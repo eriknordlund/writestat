@@ -4418,7 +4418,7 @@ z[v]=u;++v}}},
 Uf:function(){var z,y,x,w
 z=O.UJ("start")?window.localStorage.getItem("start"):new P.iP(Date.now(),!1).bu(0)
 y=O.UJ("end")?window.localStorage.getItem("end"):P.Wu(Date.now()+C.CD.BU(P.k5(7,0,0,0,0,0).m5,1000),!1).bu(0)
-this.Qe(z,y,O.UJ("amount")?window.localStorage.getItem("amount"):50000)
+this.Qe(z,y,O.UJ("amount")?window.localStorage.getItem("amount"):"50000")
 if(O.UJ("progress")){this.ez=H.VM([],[P.KN])
 for(x=window.localStorage.getItem("progress").split(","),x=new H.a7(x,x.length,0,null);x.G();){w=x.lo
 J.bi(this.ez,H.Hp(w,null,null))}}else this.ez=P.O8(8,0,null)},
